@@ -42,11 +42,11 @@ const returnClarifaiRequestOptions = ( imageUrl) => {
 const db = knex({
     client: 'pg',
     connection: {
-        host: 'dpg-ciprqeenqql4qa1v9eog-a.oregon-postgres.render.com',
+        host: 'dpg-ciprqeenqql4qa1v9eog-a',
         port: 5432,
         user: 'hell_hound',
-        password: '1YgdLghuunIMoGBbS0Dz9Uhqi6RodMF7',
-        database: 'facedetector_4a99'
+        password: 'facedetector_4a99',
+        database: 'smartbrain'
     }
 });
 
