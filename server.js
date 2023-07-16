@@ -3,6 +3,42 @@ import bcrypt from 'bcrypt-nodejs';
 import cors from 'cors';
 import knex from 'knex';
 
+const returnClarifaiRequestOptions = ( imageUrl) => {
+
+    const PAT = '670053011ad04e7986d841ac58859793';
+    const USER_ID = '25nike';
+    const APP_ID = 'Test_smb';
+    const IMAGE_URL = imageUrl;
+
+    const raw = JSON.stringify({
+        "user_app_id": {
+            "user_id": USER_ID,
+            "app_id": APP_ID
+        },
+        "inputs": [
+            {
+                "data": {
+                    "image": {
+                        "url": IMAGE_URL
+                    }
+                }
+            }
+        ]
+    });
+
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Key ' + PAT
+        },
+        body: raw
+    };
+
+
+    return requestOptions;
+}
+
 const db = knex({
     client: 'pg',
     connection: {
@@ -19,13 +55,9 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// app.get('/', (req, res) => {
-//     res.json(database.users);
-// })
-
 app.post('/register', (req, res) => {
     const { email, name, password } = req.body;
-    if(!email || !name || !password){
+    if (!email || !name || !password) {
         return res.status(400).json('incorrect form submission');
     }
     const hash = bcrypt.hashSync(password);
@@ -55,7 +87,7 @@ app.post('/register', (req, res) => {
 })
 
 app.post('/signin', (req, res) => {
-    const {email, password} = req.body;
+    const { email, password } = req.body;
     if (!email || !password) {
         return res.status(400).json('incorrect form submission');
     }
@@ -65,7 +97,7 @@ app.post('/signin', (req, res) => {
             const isValid = bcrypt.compareSync(password, data[0].hash);
             if (isValid) {
                 return db.select('*').from('users')
-                    .where('email', '=',email)
+                    .where('email', '=', email)
                     .then(user => {
                         res.json(user[0])
                     })
@@ -101,13 +133,16 @@ app.put('/image', (req, res) => {
         .catch(err => res.status(400).json('unable to get entries'))
 })
 
-app.post('/imageurl', (req,res) => {
-    const PAT = '670053011ad04e7986d841ac58859793';
-    // Specify the correct user_id/app_id pairings
-    // Since you're making inferences outside your app's scope
-    const USER_ID = '25nike';
-    const APP_ID = 'Test_smb';
-    res.json({PAT,USER_ID,APP_ID});
+app.post('/imageurl', (req, res) => {
+    const {imageUrl} = req.body;
+    fetch("https://api.clarifai.com/v2/models/face-detection/outputs", returnClarifaiRequestOptions( imageUrl))
+    .then(response => response.json())
+    .then(data => {
+        res.json(data);
+    })
+    .catch(err => {
+        res.status(400).json('error loading API');
+    })
 
 })
 
