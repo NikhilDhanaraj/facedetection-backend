@@ -14,6 +14,7 @@ const db = knex({
     }
 });
 
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -98,6 +99,16 @@ app.put('/image', (req, res) => {
             res.json(entries[0].entries);
         })
         .catch(err => res.status(400).json('unable to get entries'))
+})
+
+app.post('/imageurl', (req,res) => {
+    const PAT = '670053011ad04e7986d841ac58859793';
+    // Specify the correct user_id/app_id pairings
+    // Since you're making inferences outside your app's scope
+    const USER_ID = '25nike';
+    const APP_ID = 'Test_smb';
+    res.json({PAT,USER_ID,APP_ID});
+
 })
 
 app.listen(3000, () => {
